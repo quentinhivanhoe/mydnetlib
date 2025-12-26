@@ -1,11 +1,17 @@
 #include "TransportLayer/Socket/ASocket.hpp"
+#ifndef _WIN32
 #include <arpa/inet.h>
+#endif
 #include <iostream>
 #include <string.h>
 using namespace TransportLayer;
 
 int main(void)
 {
+#ifdef _WIN32
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2, 2), &wsaData);
+#endif
     ASocket socket;
     sockaddr_in addr;
     char buffer[10] = {0};
@@ -26,7 +32,8 @@ int main(void)
         return EXIT_FAILURE;
     }
 
-    while (socket.getState(0, 0) == IOState::IOREAD);
+    while (socket.getState(0, 0) == IOState::IOREAD)
+        ;
     ssize_t nbyte = socket.read(buffer, sizeof(buffer));
 
     if (nbyte == -1)
@@ -43,5 +50,9 @@ int main(void)
         return EXIT_FAILURE;
     }
     memset(buffer, 0, nbyte >= 0 ? nbyte : sizeof(buffer));
+    socket.close();
+#ifdef _WIN32
+    WSACleanup();
+#endif
     return EXIT_SUCCESS;
 }
