@@ -24,10 +24,9 @@ typedef SOCKET socket_t;
 // Linux library
 #include <cstdint>
 #include <errno.h>
-#include <unistd.h>
 #include <sys/select.h>
 #include <sys/socket.h>
-
+#include <unistd.h>
 
 // Linux special socket define
 #define CLOSE(s) ::close(s)
@@ -48,11 +47,11 @@ namespace TransportLayer
  */
 enum IOState
 {
-    IOREAD,       // there is data to read
-    IOWRITE,      // socket is writable
-    IOEXCEPTION,  // socket exception
-    IOERROR,      // error happened
-    IOTIMEOUT     // no event happened
+    IOREAD,      // there is data to read
+    IOWRITE,     // socket is writable
+    IOEXCEPTION, // socket exception
+    IOERROR,     // error happened
+    IOTIMEOUT    // no event happened
 };
 
 /**
@@ -93,6 +92,16 @@ class ISocket
      * @return bool true if ther is no error false if an error happen
      */
     virtual bool close(void) = 0;
+
+    /**
+     * @brief assigns the address specified by addr to the socket referredto by
+     * the file descriptor sockfd
+     *
+     * @param addr address to assign
+     * @return true assign address sucessfully
+     * @return false error happen
+     */
+    virtual bool bind(const struct sockaddr *addr, socklen_t addrlen) const = 0;
 
     /**
      * @brief read bytes from the socket

@@ -52,6 +52,21 @@ bool TransportLayer::ASocket::close(void)
     return true;
 }
 
+bool TransportLayer::ASocket::bind(const struct sockaddr *addr, socklen_t addrlen) const
+{
+    if (!addr || !addrlen)
+    {
+        std::cerr << "error in parameters" << std::endl;
+        return false;
+    }
+    if (::bind(_socket, addr, addrlen) == -1)
+    {
+        std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+        return false;
+    }
+    return true;
+}
+
 ssize_t TransportLayer::ASocket::read(char *buffer, std::size_t size) const
 {
     ssize_t nbyte = recv(_socket, buffer, size, 0);

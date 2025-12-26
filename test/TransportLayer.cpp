@@ -20,7 +20,7 @@ int main(void)
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = ntohs(4242);
 
-    if (bind(socket.getSocket(), reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) < 0)
+    if (!socket.bind(reinterpret_cast<sockaddr *>(&addr), sizeof(addr)))
     {
         std::cerr << "bind failed" << std::endl;
         return EXIT_FAILURE;
