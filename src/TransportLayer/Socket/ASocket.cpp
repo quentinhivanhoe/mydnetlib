@@ -23,7 +23,8 @@ TransportLayer::ASocket::ASocket(int domain, int type, int protocol)
 
 TransportLayer::ASocket::~ASocket(void)
 {
-    this->close();
+    if (_socket != INVALID_SOCKET_FD)
+        this->close();
 }
 
 bool TransportLayer::ASocket::open(int domain, int type, int protocol)
@@ -45,8 +46,10 @@ bool TransportLayer::ASocket::close(void)
         if (CLOSE(_socket) == -1)
         {
             std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+            _socket = INVALID_SOCKET_FD;
             return false;
         }
+        _socket = INVALID_SOCKET_FD;
         return true;
     }
     return true;
@@ -67,7 +70,7 @@ bool TransportLayer::ASocket::bind(const struct sockaddr *addr, socklen_t addrle
     return true;
 }
 
-ssize_t TransportLayer::ASocket::read(char *buffer, std::size_t size) const
+ssize_t TransportLayer::ASocket::read(char *buffer, std::size_t size)
 {
     ssize_t nbyte = recv(_socket, buffer, size, 0);
 
@@ -76,27 +79,9 @@ ssize_t TransportLayer::ASocket::read(char *buffer, std::size_t size) const
     return nbyte;
 }
 
-template <typename P> ssize_t TransportLayer::ASocket::operator>>(P packet) const
-{
-    ssize_t nbyte = recv(_socket, packet, sizeof(packet), 0);
-
-    if (nbyte == -1)
-        std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
-    return nbyte;
-}
-
-ssize_t TransportLayer::ASocket::write(const char *data, std::size_t size) const
+ssize_t TransportLayer::ASocket::write(const char *data, std::size_t size)
 {
     ssize_t nbyte = send(_socket, data, size, 0);
-
-    if (nbyte == -1)
-        std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
-    return nbyte;
-}
-
-template <typename P> ssize_t TransportLayer::ASocket::operator<<(P packet) const
-{
-    ssize_t nbyte = send(_socket, packet, sizeof(packet), 0);
 
     if (nbyte == -1)
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
