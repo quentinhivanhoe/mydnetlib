@@ -81,34 +81,16 @@ class ASocket : public ISocket
      * @param size buffer's size
      * @return ssize_t bytes readed, -1 on error
      */
-    ssize_t read(char *buffer, std::size_t size) const override;
+    virtual ssize_t read(char *buffer, std::size_t size) override;
 
     /**
-     * @brief Read from socket and fullfill the packet structure
-     *
-     * @tparam P type of the structure to write
-     * @param packet the size of the packet
-     * @return ssize_t number of byte read, -1 on error
-     */
-    template <typename P> ssize_t operator>>(P packet) const;
-
-    /**
-     * @brief
+     * @brief write data throught the socket
      *
      * @param data data to write on the socket
      * @param size data size
      * @return bytes write, -1 on error
      */
-    ssize_t write(const char *data, std::size_t size) const override;
-
-    /**
-     * @brief Write a byte strcuture to the socket
-     *
-     * @tparam P type of the structure to write
-     * @param packet the size of the packet
-     * @return ssize_t number of byte write, -1 on error
-     */
-    template <typename P> ssize_t operator<<(P packet) const;
+    virtual ssize_t write(const char *data, std::size_t size) override;
 
     /**
      * @brief get current state of the socket

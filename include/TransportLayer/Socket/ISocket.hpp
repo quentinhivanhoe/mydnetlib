@@ -29,6 +29,8 @@ typedef SOCKET socket_t;
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 // Linux special socket define
 #define CLOSE(s) ::close(s)
@@ -112,7 +114,7 @@ class ISocket
      * @param size buffer's size
      * @return ssize_t bytes readed, -1 on error
      */
-    virtual ssize_t read(char *buffer, std::size_t size) const = 0;
+    virtual ssize_t read(char *buffer, std::size_t size) = 0;
 
     /**
      * @brief
@@ -121,7 +123,7 @@ class ISocket
      * @param size data size
      * @return bytes write, -1 on error
      */
-    virtual ssize_t write(const char *data, std::size_t size) const = 0;
+    virtual ssize_t write(const char *data, std::size_t size) = 0;
 
     /**
      * @brief get current state of the socket

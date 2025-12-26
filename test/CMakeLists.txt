@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(TRANSPORT_LAYER_SOURCES
     ../src/TransportLayer/Socket/ASocket.cpp
+    ../src/TransportLayer/Socket/UDPSocket.cpp
     TransportLayer.cpp
 )
 
@@ -22,6 +23,5 @@ if(WIN32)
 endif()
 
 target_include_directories(mydnet PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include
     ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
