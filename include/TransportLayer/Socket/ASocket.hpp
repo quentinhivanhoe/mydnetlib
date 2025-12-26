@@ -54,6 +54,17 @@ class ASocket : public ISocket
     bool close(void) override;
 
     /**
+     * @brief assigns the address specified by addr to the socket referredto by
+     * the file descriptor sockfd
+     *
+     * @param addr address to assign
+     * @param addrlen the address structure len in byte
+     * @return true assign address sucessfully
+     * @return false error happen
+     */
+     bool bind(const struct sockaddr *addr, socklen_t addrlen) const override;
+
+    /**
      * @brief Get the socket fd
      *
      * @return socket_t internal socket
