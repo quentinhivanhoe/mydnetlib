@@ -9,12 +9,14 @@
 #define ISOCKET_HPP_
 #ifdef _WIN32
 // Windows library
-#include <cstdint>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
 
 // Windows special socket define
-#define CLOSE(s) closocket(s)
+#define CLOSE(s) closesocket(s)
 #define SOCKET_ERROR_CODE WSAGetLastError()
 #define INVALID_SOCKET_FD INVALID_SOCKET
 
