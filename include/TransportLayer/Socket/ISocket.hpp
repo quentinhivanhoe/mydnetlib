@@ -18,17 +18,19 @@
 #define SOCKET_ERROR_CODE WSAGetLastError()
 #define INVALID_SOCKET_FD INVALID_SOCKET
 
-// Windows special type
+// Windows socket type
 typedef SOCKET socket_t;
 #else
 // Linux library
 #include <cstdint>
 #include <errno.h>
-#include <sys/socket.h>
 #include <unistd.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+
 
 // Linux special socket define
-#define CLOSE(s) close(s)
+#define CLOSE(s) ::close(s)
 #define SOCKET_ERROR_CODE errno
 #define INVALID_SOCKET_FD -1
 
@@ -36,7 +38,7 @@ typedef SOCKET socket_t;
 typedef int socket_t;
 #endif
 
-namespace Network::TransportLayer
+namespace TransportLayer
 {
 
 /**
@@ -46,10 +48,11 @@ namespace Network::TransportLayer
  */
 enum IOState
 {
-    IOREAD,   // there is data to read
-    IOWRITE,  // socket is writable
-    IOERROR,  // error happened
-    IOTIMEOUT // no event happened
+    IOREAD,       // there is data to read
+    IOWRITE,      // socket is writable
+    IOEXCEPTION,  // socket exception
+    IOERROR,      // error happened
+    IOTIMEOUT     // no event happened
 };
 
 /**
@@ -71,14 +74,25 @@ class ISocket
      *
      * @return socket_t internal socket
      */
-    inline virtual socket_t getSocket() const = 0;
+    inline virtual socket_t getSocket(void) const = 0;
+
+    /**
+     * @brief Create a new socket
+     *
+     * @param domain    communication domain
+     * @param type      communication semantics
+     * @param protocol  socket protocol
+     * @return true     socket is succesfully open
+     * @return false    error happened
+     */
+    virtual bool open(int domain, int type, int protocol) = 0;
 
     /**
      * @brief close the internal socket
      *
      * @return bool true if ther is no error false if an error happen
      */
-    virtual bool close() = 0;
+    virtual bool close(void) = 0;
 
     /**
      * @brief read bytes from the socket
@@ -111,6 +125,6 @@ class ISocket
   private:
 };
 
-} // namespace Network::TransportLayer
+} // namespace TransportLayer
 
 #endif /* !ISOCKET_HPP_ */
