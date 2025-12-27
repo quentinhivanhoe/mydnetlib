@@ -17,7 +17,10 @@ ssize_t TransportLayer::UDPSocket::read(char *buffer, std::size_t size)
     _addrLen = sizeof(addr);
     nbyte = recvfrom(_socket, buffer, size, 0, &addr, &_addrLen);
     if (nbyte == -1)
+    {
+        _setSockState(SOCKERROR);
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+    }
     memcpy(&_addr, &addr, _addrLen);
     return nbyte;
 }
@@ -27,7 +30,10 @@ ssize_t TransportLayer::UDPSocket::readFrom(char *buffer, std::size_t size, sock
     ssize_t nbyte = recvfrom(_socket, buffer, size, 0, addr, addrlen);
 
     if (nbyte == -1)
+    {
+        _setSockState(SOCKERROR);
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+    }
     return nbyte;
 }
 
@@ -39,7 +45,10 @@ ssize_t TransportLayer::UDPSocket::write(const char *data, std::size_t size)
     memcpy(&addr, &_addr, _addrLen);
     nbyte = sendto(_socket, data, size, 0, &addr, _addrLen);
     if (nbyte == -1)
+    {
+        _setSockState(SOCKERROR);
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+    }
     return nbyte;
 }
 
@@ -49,6 +58,9 @@ ssize_t TransportLayer::UDPSocket::writeTo(const char *data, std::size_t size, s
 
     nbyte = sendto(_socket, data, size, 0, addr, addrlen);
     if (nbyte == -1)
+    {
+        _setSockState(SOCKERROR);
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+    }
     return nbyte;
 }

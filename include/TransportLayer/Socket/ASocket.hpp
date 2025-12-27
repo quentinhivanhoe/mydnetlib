@@ -18,7 +18,7 @@ class ASocket : public ISocket
      * you need to set the socket
      *
      */
-    ASocket(void) : _socket(INVALID_SOCKET_FD) {};
+    ASocket(void) : _socket(INVALID_SOCKET_FD), _state(SOCKINVALID) {};
 
     /**
      * @brief Create a new socket
@@ -62,7 +62,7 @@ class ASocket : public ISocket
      * @return true assign address sucessfully
      * @return false error happen
      */
-    bool bind(const struct sockaddr *addr, socklen_t addrlen) const override;
+    bool bind(const struct sockaddr *addr, socklen_t addrlen) override;
 
     /**
      * @brief Connect to another socket moste needed in TCP socket but for UDP socket
@@ -73,7 +73,7 @@ class ASocket : public ISocket
      * @return true connect sucessfully
      * @return false error happen
      */
-    bool connect(const sockaddr *addr, socklen_t addrlen) const override;
+    bool connect(const sockaddr *addr, socklen_t addrlen) override;
 
     /**
      * @brief Connect to another socket moste needed in TCP socket but for UDP socket
@@ -84,7 +84,7 @@ class ASocket : public ISocket
      * @return true connect sucessfully
      * @return false error happen
      */
-    bool connect(const char *host, uint16_t port) const override;
+    bool connect(const char *host, uint16_t port) override;
 
     /**
      * @brief Get the socket fd
@@ -123,10 +123,31 @@ class ASocket : public ISocket
      */
     IOState getState(int timeoutSec, int timeoutUsec) const override;
 
+    /**
+     * @brief Get the internal socket state
+     *
+     * @return SockState internal socket state
+     */
+    inline SockState getSockState(void) const override
+    {
+      return _state;
+    };
+
   protected:
     socket_t _socket; // File descriptor representing the socket
 
+    /**
+     * @brief Set the internal socket state
+     *
+     * @param state internal socket state
+     */
+    inline void _setSockState(SockState state)
+    {
+        _state = state;
+    };
+
   private:
+    SockState _state; //
 };
 } // namespace TransportLayer
 

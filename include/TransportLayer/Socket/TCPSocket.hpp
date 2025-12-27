@@ -67,14 +67,14 @@ class TCPSocket : public ASocket
      * @return true set as passive socket sucessfully
      * @return false error happen
      */
-    bool listen(int backlog) const;
+    bool listen(int backlog);
 
     /**
      * @brief Accept a new connection, don't store his address
      *
      * @return socket_t New connection socket
      */
-    socket_t accept(void) const;
+    socket_t accept(void);
 
     /**
      * @brief Aceept a new connection
@@ -84,7 +84,7 @@ class TCPSocket : public ASocket
      * @param addrlen New connection address size
      * @return socket_t New connection socket
      */
-    socket_t accept(sockaddr *addr, socklen_t *addrlen) const;
+    socket_t accept(sockaddr *addr, socklen_t *addrlen);
 
   protected:
   private:

@@ -10,10 +10,10 @@
 #ifdef _WIN32
 // Windows library
 #define WIN32_LEAN_AND_MEAN
+#include <cstdint>
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <cstdint>
 #pragma comment(lib, "ws2_32.lib")
 
 // Windows special socket define
@@ -44,6 +44,21 @@ typedef int socket_t;
 
 namespace TransportLayer
 {
+
+/**
+ * @enum SockState
+ * @brief Represent socket internal state
+ *
+ */
+enum SockState
+{
+    SOCKINVALID = -2,    // socket is on an invalid state. notihin is possible th4e socket shoould be open
+    SOCKCLOSED = -1,     // socket have been closed and disable write, read and iostate on it
+    SOCKERROR = 0,      // an error happen on the socket depending on the error it can block everything
+    SOCKOPEN,       // socket has been created but not bind are connected yet
+    SOCKLISTENING,  // socket has been bind and wait for connection, disable writing
+    SOCKCONNECTED  // socket has been connected to a passive socket
+};
 
 /**
  * @enum IOState
@@ -106,7 +121,7 @@ class ISocket
      * @return true assign address sucessfully
      * @return false error happen
      */
-    virtual bool bind(const struct sockaddr *addr, socklen_t addrlen) const = 0;
+    virtual bool bind(const struct sockaddr *addr, socklen_t addrlen) = 0;
 
     /**
      * @brief Connect to another socket moste needed in TCP socket but for UDP socket
@@ -117,7 +132,7 @@ class ISocket
      * @return true connect sucessfully
      * @return false error happen
      */
-    virtual bool connect(const sockaddr *addr, socklen_t addrlen) const = 0;
+    virtual bool connect(const sockaddr *addr, socklen_t addrlen) = 0;
 
     /**
      * @brief Connect to another socket moste needed in TCP socket but for UDP socket
@@ -128,7 +143,7 @@ class ISocket
      * @return true connect sucessfully
      * @return false error happen
      */
-    virtual bool connect(const char *host, uint16_t port) const = 0;
+    virtual bool connect(const char *host, uint16_t port) = 0;
 
     /**
      * @brief read bytes from the socket
@@ -156,6 +171,13 @@ class ISocket
      * @return IOState current socket state
      */
     virtual IOState getState(int timeoutSec, int timeoutUsec) const = 0;
+
+    /**
+     * @brief Get the internal socket state
+     *
+     * @return SockState internal socket state
+     */
+    inline virtual SockState getSockState(void) const = 0;
 
   protected:
   private:

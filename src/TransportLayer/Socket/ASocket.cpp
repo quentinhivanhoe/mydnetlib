@@ -18,65 +18,63 @@ TransportLayer::ASocket::ASocket(int domain, int type, int protocol)
     if (_socket == INVALID_SOCKET_FD)
     {
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+        _state = SockState::SOCKERROR;
     }
+    _state = SockState::SOCKOPEN;
 }
 
 TransportLayer::ASocket::~ASocket(void)
 {
-    if (_socket != INVALID_SOCKET_FD)
+    if (_socket != INVALID_SOCKET_FD && _state >= SOCKERROR)
         this->close();
 }
 
 bool TransportLayer::ASocket::open(int domain, int type, int protocol)
 {
+    if (_socket != INVALID_SOCKET_FD && _state > SOCKERROR)
+        return;
     _socket = socket(domain, type, protocol);
-
     if (_socket == INVALID_SOCKET_FD)
     {
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+        _state = SockState::SOCKERROR;
         return false;
     }
+    _state = SOCKOPEN;
     return true;
 }
 
 bool TransportLayer::ASocket::close(void)
 {
-    if (_socket != INVALID_SOCKET_FD)
+    if (_socket != INVALID_SOCKET_FD && _state >= SOCKERROR)
     {
         if (CLOSE(_socket) == -1)
         {
             std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
             _socket = INVALID_SOCKET_FD;
+            _state = SOCKERROR;
             return false;
         }
+        _state = SOCKCLOSED;
         _socket = INVALID_SOCKET_FD;
         return true;
     }
     return true;
 }
 
-bool TransportLayer::ASocket::bind(const struct sockaddr *addr, socklen_t addrlen) const
+bool TransportLayer::ASocket::bind(const struct sockaddr *addr, socklen_t addrlen)
 {
     if (!addr || !addrlen)
     {
         std::cerr << "error in parameters" << std::endl;
         return false;
     }
-    if (::bind(_socket, addr, addrlen) == -1)
+    if (_socket != INVALID_SOCKET_FD && _state == SOCKOPEN)
     {
-        std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
-        return false;
-    }
-    return true;
-}
-
-bool TransportLayer::ASocket::connect(const sockaddr *addr, socklen_t addrlen) const
-{
-    if (_socket != INVALID_SOCKET_FD)
-    {
-        if (::connect(_socket, addr, addrlen) == -1)
+        if (::bind(_socket, addr, addrlen) == -1)
         {
             std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+            _state = SockState::SOCKERROR;
             return false;
         }
         return true;
@@ -84,7 +82,23 @@ bool TransportLayer::ASocket::connect(const sockaddr *addr, socklen_t addrlen) c
     return false;
 }
 
-bool TransportLayer::ASocket::connect(const char *host, uint16_t port) const
+bool TransportLayer::ASocket::connect(const sockaddr *addr, socklen_t addrlen)
+{
+    if (_socket != INVALID_SOCKET_FD && _state == SOCKOPEN)
+    {
+        if (::connect(_socket, addr, addrlen) == -1)
+        {
+            std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+            _state = SockState::SOCKERROR;
+            return false;
+        }
+        _state = SOCKCONNECTED;
+        return true;
+    }
+    return false;
+}
+
+bool TransportLayer::ASocket::connect(const char *host, uint16_t port)
 {
     sockaddr_in addr = {0};
 
@@ -93,15 +107,18 @@ bool TransportLayer::ASocket::connect(const char *host, uint16_t port) const
     if (!inet_pton(AF_INET, host, &addr.sin_addr))
     {
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+        _state = SockState::SOCKERROR;
         return false;
     }
-    if (_socket != INVALID_SOCKET_FD)
+    if (_socket != INVALID_SOCKET_FD && _state == SOCKOPEN)
     {
         if (::connect(_socket, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) == -1)
         {
             std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+            _state = SockState::SOCKERROR;
             return false;
         }
+        _state = SOCKCONNECTED;
         return true;
     }
     return false;
@@ -109,17 +126,26 @@ bool TransportLayer::ASocket::connect(const char *host, uint16_t port) const
 
 ssize_t TransportLayer::ASocket::read(char *buffer, std::size_t size)
 {
-    ssize_t nbyte = recv(_socket, buffer, size, 0);
+    ssize_t nbyte = -1;
 
+    if (_socket == INVALID_SOCKET_FD || _state < SOCKLISTENING)
+        return -1;
+    nbyte = recv(_socket, buffer, size, 0);
     if (nbyte == -1)
+    {
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+        _state = SockState::SOCKERROR;
+    }
     return nbyte;
 }
 
 ssize_t TransportLayer::ASocket::write(const char *data, std::size_t size)
 {
-    ssize_t nbyte = send(_socket, data, size, 0);
+    ssize_t nbyte = 0;
 
+    if (_socket == INVALID_SOCKET_FD || _state != SOCKCONNECTED)
+        return -1;
+    nbyte = send(_socket, data, size, 0);
     if (nbyte == -1)
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
     return nbyte;
@@ -131,6 +157,9 @@ IOState TransportLayer::ASocket::getState(int timeoutSec, int timeoutUsec) const
     fd_set wfds = {0};
     fd_set efds = {0};
     struct timeval timeout = {.tv_sec = timeoutSec, .tv_usec = timeoutUsec};
+
+    if (_socket == INVALID_SOCKET_FD || _state < SOCKLISTENING)
+        return IOTIMEOUT;
 
     FD_SET(_socket, &rfds);
     FD_SET(_socket, &wfds);
