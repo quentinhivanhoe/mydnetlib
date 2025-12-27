@@ -17,7 +17,7 @@ TransportLayer::TCPSocket::TCPSocket(TCPSocket &other)
     other._socket = INVALID_SOCKET_FD;
 }
 
-TransportLayer::TCPSocket TransportLayer::TCPSocket::operator=(socket_t sockfd)
+TransportLayer::TCPSocket &TransportLayer::TCPSocket::operator=(socket_t sockfd)
 {
     if (_socket != INVALID_SOCKET_FD)
         this->close();
@@ -25,7 +25,7 @@ TransportLayer::TCPSocket TransportLayer::TCPSocket::operator=(socket_t sockfd)
     return *this;
 }
 
-TransportLayer::TCPSocket TransportLayer::TCPSocket::operator=(TCPSocket other)
+TransportLayer::TCPSocket &TransportLayer::TCPSocket::operator=(TCPSocket other)
 {
     if (_socket != INVALID_SOCKET_FD)
         this->close();

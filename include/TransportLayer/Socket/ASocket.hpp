@@ -84,7 +84,7 @@ class ASocket : public ISocket
      * @return true connect sucessfully
      * @return false error happen
      */
-    bool connect(std::string host, uint16_t port) const override;
+    bool connect(const char *host, uint16_t port) const override;
 
     /**
      * @brief Get the socket fd

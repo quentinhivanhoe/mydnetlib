@@ -43,7 +43,7 @@ class TCPSocket : public ASocket
      *
      * @param sockfd External fd
      */
-    TCPSocket operator=(socket_t sockfd);
+    TCPSocket &operator=(socket_t sockfd);
 
     /**
      * @brief Overload assignment operator
@@ -52,7 +52,7 @@ class TCPSocket : public ASocket
      * @param other
      * @return TCPSocket
      */
-    TCPSocket operator=(TCPSocket other);
+    TCPSocket &operator=(TCPSocket other);
 
     /**
      * @brief Close the fd of the TCP socket

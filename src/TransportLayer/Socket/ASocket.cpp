@@ -84,13 +84,13 @@ bool TransportLayer::ASocket::connect(const sockaddr *addr, socklen_t addrlen) c
     return false;
 }
 
-bool TransportLayer::ASocket::connect(std::string host, uint16_t port) const
+bool TransportLayer::ASocket::connect(const char *host, uint16_t port) const
 {
     sockaddr_in addr = {0};
 
     addr.sin_family = AF_INET;
     addr.sin_port = ntohs(port);
-    if (!inet_aton(host.c_str(), &addr.sin_addr))
+    if (!inet_pton(AF_INET, host, &addr.sin_addr))
     {
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
         return false;

@@ -13,6 +13,7 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <cstdint>
 #pragma comment(lib, "ws2_32.lib")
 
 // Windows special socket define
@@ -127,7 +128,7 @@ class ISocket
      * @return true connect sucessfully
      * @return false error happen
      */
-    virtual bool connect(std::string host, uint16_t port) const = 0;
+    virtual bool connect(const char *host, uint16_t port) const = 0;
 
     /**
      * @brief read bytes from the socket
