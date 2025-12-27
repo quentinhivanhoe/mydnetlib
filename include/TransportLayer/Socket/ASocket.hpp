@@ -65,6 +65,28 @@ class ASocket : public ISocket
     bool bind(const struct sockaddr *addr, socklen_t addrlen) const override;
 
     /**
+     * @brief Connect to another socket moste needed in TCP socket but for UDP socket
+     * a writeTo connect to the socket implicitely
+     *
+     * @param addr Address to connect
+     * @param addrlen Size of the address in byte
+     * @return true connect sucessfully
+     * @return false error happen
+     */
+    bool connect(const sockaddr *addr, socklen_t addrlen) const override;
+
+    /**
+     * @brief Connect to another socket moste needed in TCP socket but for UDP socket
+     * a writeTo connect to the socket implicitely
+     *
+     * @param host host as human readable (127.0.0.1)
+     * @param port port to connet on the host machine
+     * @return true connect sucessfully
+     * @return false error happen
+     */
+    bool connect(std::string host, uint16_t port) const override;
+
+    /**
      * @brief Get the socket fd
      *
      * @return socket_t internal socket
