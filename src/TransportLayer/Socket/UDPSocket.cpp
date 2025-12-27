@@ -15,7 +15,7 @@ ssize_t TransportLayer::UDPSocket::read(char *buffer, std::size_t size)
     ssize_t nbyte = 0;
 
     _addrLen = sizeof(addr);
-    nbyte = recvfrom(this->getSocket(), buffer, size, 0, &addr, &_addrLen);
+    nbyte = recvfrom(_socket, buffer, size, 0, &addr, &_addrLen);
     if (nbyte == -1)
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
     memcpy(&_addr, &addr, _addrLen);
@@ -24,7 +24,7 @@ ssize_t TransportLayer::UDPSocket::read(char *buffer, std::size_t size)
 
 ssize_t TransportLayer::UDPSocket::readFrom(char *buffer, std::size_t size, sockaddr *addr, socklen_t *addrlen)
 {
-    ssize_t nbyte = recvfrom(this->getSocket(), buffer, size, 0, addr, addrlen);
+    ssize_t nbyte = recvfrom(_socket, buffer, size, 0, addr, addrlen);
 
     if (nbyte == -1)
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
@@ -37,7 +37,7 @@ ssize_t TransportLayer::UDPSocket::write(const char *data, std::size_t size)
     ssize_t nbyte = 0;
 
     memcpy(&addr, &_addr, _addrLen);
-    nbyte = sendto(this->getSocket(), data, size, 0, &addr, _addrLen);
+    nbyte = sendto(_socket, data, size, 0, &addr, _addrLen);
     if (nbyte == -1)
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
     return nbyte;
@@ -47,7 +47,7 @@ ssize_t TransportLayer::UDPSocket::writeTo(const char *data, std::size_t size, s
 {
     ssize_t nbyte = 0;
 
-    nbyte = sendto(this->getSocket(), data, size, 0, addr, addrlen);
+    nbyte = sendto(_socket, data, size, 0, addr, addrlen);
     if (nbyte == -1)
         std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
     return nbyte;

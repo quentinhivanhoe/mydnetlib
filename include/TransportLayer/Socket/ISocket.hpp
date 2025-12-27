@@ -13,6 +13,7 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <cstdint>
 #pragma comment(lib, "ws2_32.lib")
 
 // Windows special socket define
@@ -24,13 +25,13 @@
 typedef SOCKET socket_t;
 #else
 // Linux library
+#include <arpa/inet.h>
 #include <cstdint>
 #include <errno.h>
+#include <netinet/in.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
 
 // Linux special socket define
 #define CLOSE(s) ::close(s)
@@ -106,6 +107,28 @@ class ISocket
      * @return false error happen
      */
     virtual bool bind(const struct sockaddr *addr, socklen_t addrlen) const = 0;
+
+    /**
+     * @brief Connect to another socket moste needed in TCP socket but for UDP socket
+     * a writeTo connect to the socket implicitely
+     *
+     * @param addr Address to connect
+     * @param addrlen Size of the address in byte
+     * @return true connect sucessfully
+     * @return false error happen
+     */
+    virtual bool connect(const sockaddr *addr, socklen_t addrlen) const = 0;
+
+    /**
+     * @brief Connect to another socket moste needed in TCP socket but for UDP socket
+     * a writeTo connect to the socket implicitely
+     *
+     * @param host host as human readable (127.0.0.1)
+     * @param port port to connet on the host machine
+     * @return true connect sucessfully
+     * @return false error happen
+     */
+    virtual bool connect(const char *host, uint16_t port) const = 0;
 
     /**
      * @brief read bytes from the socket

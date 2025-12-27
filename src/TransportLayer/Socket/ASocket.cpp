@@ -70,6 +70,43 @@ bool TransportLayer::ASocket::bind(const struct sockaddr *addr, socklen_t addrle
     return true;
 }
 
+bool TransportLayer::ASocket::connect(const sockaddr *addr, socklen_t addrlen) const
+{
+    if (_socket != INVALID_SOCKET_FD)
+    {
+        if (::connect(_socket, addr, addrlen) == -1)
+        {
+            std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+bool TransportLayer::ASocket::connect(const char *host, uint16_t port) const
+{
+    sockaddr_in addr = {0};
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = ntohs(port);
+    if (!inet_pton(AF_INET, host, &addr.sin_addr))
+    {
+        std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+        return false;
+    }
+    if (_socket != INVALID_SOCKET_FD)
+    {
+        if (::connect(_socket, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) == -1)
+        {
+            std::cerr << strerror(SOCKET_ERROR_CODE) << std::endl;
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
 ssize_t TransportLayer::ASocket::read(char *buffer, std::size_t size)
 {
     ssize_t nbyte = recv(_socket, buffer, size, 0);
