@@ -62,7 +62,7 @@ class ASocket : public ISocket
      * @return true assign address sucessfully
      * @return false error happen
      */
-     bool bind(const struct sockaddr *addr, socklen_t addrlen) const override;
+    bool bind(const struct sockaddr *addr, socklen_t addrlen) const override;
 
     /**
      * @brief Get the socket fd
@@ -102,8 +102,9 @@ class ASocket : public ISocket
     IOState getState(int timeoutSec, int timeoutUsec) const override;
 
   protected:
-  private:
     socket_t _socket; // File descriptor representing the socket
+
+  private:
 };
 } // namespace TransportLayer
 
